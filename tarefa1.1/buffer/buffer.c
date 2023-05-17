@@ -6,9 +6,14 @@
 #include <pthread.h>
 #include <semaphore.h>
 
+
+
+
 //
 // TODO: Definição dos semáforos (variaveis precisam ser globais)
-//
+sem_t mutex;
+sem_t full;
+sem_t empty;
 
 // ponteiro para a fila do buffer
 int * buffer;
@@ -41,7 +46,7 @@ int main(int argc, char ** argv)
     pthread_t *nprod;
 
     // int i;
-    long i;
+    int i;
 
     if ( argc != 3 )
     {
@@ -62,6 +67,10 @@ int main(int argc, char ** argv)
     // TODO: Criação dos semáforos (aqui é quando define seus
     // valores)
     // 
+    sem_init(&mutex, 0, 1);
+    sem_init(&full, 0, 0);
+    sem_init(&empty, 0, N_BUFFER);
+    
     
     // gerando um buffer de N inteiros
     buffer = malloc(N_BUFFER * sizeof(int));
@@ -96,6 +105,9 @@ int main(int argc, char ** argv)
     //
     // TODO: Excluindo os semaforos
     // 
+    sem_destroy(&mutex);
+    sem_destroy(&full);
+    sem_destroy(&empty);
 
     // liberando a memoria alocada
     free(buffer);
@@ -123,6 +135,7 @@ void * consumer()
         //
         // TODO: precisa bloquear ate que tenha algo a consumir
         //
+        sem_wait(&full);
         
         printf("- Consumidor entrou em ação!\n");
 
@@ -131,6 +144,7 @@ void * consumer()
         //
         // TODO: precisa garantir exclusão mutua ao acessar o buffer
         //
+        sem_wait(&mutex);
 
         printf("\t- Consumidor vai limpar posição %d\n", out);
 
@@ -152,10 +166,12 @@ void * consumer()
         //
         // TODO: saindo da seção critica
         //
+        sem_post(&mutex);
         
         //
         // TODO: liberando o recurso
         //
+        sem_post(&empty);
 
         i++;
     }
@@ -167,8 +183,8 @@ void * producer(void * id)
     usleep(gera_rand(1000000));
 
     // recebendo od Id do produtor e convertendo para int
-    // int i = (int)id;
-    long i = (long)id;
+    //long i = (long)id;
+    int i = (int)id;
     
     // valor a ser produzido
     int produto;
@@ -178,6 +194,7 @@ void * producer(void * id)
     //
     // TODO: precisa bloquear até que tenha posicao disponível no buffer
     //
+    sem_wait(&empty);
 
 
     printf("> Produtor %d entrou em ação!\n",i);
@@ -185,6 +202,7 @@ void * producer(void * id)
     // 
     // TODO: precisa garantir o acesso exclusivo ao buffer
     //
+    sem_wait(&mutex);
 
     // numero aleatorio de 0 a 99
     produto = gera_rand(100);
@@ -208,10 +226,11 @@ void * producer(void * id)
     // 
     // TODO: liberar o acesso ao buffer
     //
-    
+    sem_post(&mutex);
     //
     // TODO: liberar para o consumidor acessar o buffer
     //
+    sem_post(&full);
 }
 
 int gera_rand(int limit)
