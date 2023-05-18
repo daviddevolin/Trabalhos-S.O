@@ -12,6 +12,9 @@ int readcount = 0;
 //
 // TODO: Definição dos semáforos (variaveis precisam ser globais)
 //
+sem_t mutex;
+sem_t wrt;
+
 
 // dado compartilhado que os leitores e escritores acessarão
 int shared = 0;
@@ -43,6 +46,8 @@ int main(int argc, char ** argv)
     // TODO: Criação dos semáforos (aqui é quando define seus
     // valores)
     // 
+    sem_init(&mutex,0,1);
+    sem_init(&wrt,0,1);
  
     // num leitores
     int N_LEITORES = atoi(argv[1]);
@@ -84,6 +89,9 @@ int main(int argc, char ** argv)
     // TODO: Excluindo os semaforos
     // 
 
+    sem_destroy(&mutex);
+    sem_destroy(&wrt);
+
     // liberando a memoria alocada
     free(tl);
     free(te);
@@ -106,9 +114,13 @@ void * leitor(void * id)
     //
     // TODO: precisa fazer o controle de acesso à entrada do leitor
     //
-    
-    printf("> Leitor %d conseguiu acesso\n",i);
+    sem_wait(&mutex);
     readcount++;
+    if(readcount == 1){
+        sem_wait(&wrt);
+    }
+    sem_post(&mutex);
+    printf("> Leitor %d conseguiu acesso\n",i);
 
         
         // leitor acessando o valor de shared
@@ -131,9 +143,16 @@ void * leitor(void * id)
     // TODO: precisa fazer a saída do leitor e liberação do acesso
     //
 
-    printf("< Leitor %d liberando acesso\n",i);
+    sem_wait(&mutex);
     readcount--;
+    if(readcount==0){
+        sem_post(&wrt);
+    }
+    printf("< Leitor %d liberando acesso\n",i);
 
+    sem_post(&mutex);
+    
+    
 }
 
 void * escritor(void * id)
@@ -148,6 +167,7 @@ void * escritor(void * id)
     //
     // TODO: precisa controlar o acesso do escritor ao recurso
     //
+    sem_wait(&wrt);
     
     printf("\t+ Escritor %d conseguiu acesso\n",i);
 
@@ -166,6 +186,7 @@ void * escritor(void * id)
     //
     // TODO: precisa fazer a saída do escritor e liberação do acesso
     //
+    sem_post(&wrt);
     
     printf("+ Escritor %d saindo\n",i);
 }
