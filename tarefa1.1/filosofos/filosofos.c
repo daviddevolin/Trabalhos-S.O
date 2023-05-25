@@ -9,6 +9,7 @@
 //
 // TODO: Definição dos semáforos (variaveis precisam ser globais)
 //
+sem_t mutex;
 
 // lista quem esta de posse de um chopstick
 int *chopstick_use;
@@ -56,6 +57,7 @@ int main(int argc, char ** argv)
     // TODO: Criação dos semáforos (aqui é quando define seus
     // valores)
     // 
+    sem_init(&mutex, 0, 1);
  
     // iniciando as threads dos filosofos
     for (i = 0; i < N_FILOS; i++)
@@ -72,6 +74,7 @@ int main(int argc, char ** argv)
     //
     // TODO: Excluindo os semaforos
     // 
+    sem_destroy(&mutex);
 
     // liberando a memoria alocada
     free(tids);
@@ -105,6 +108,7 @@ void * filosofo(void * id)
 
     //
     // TODO: precisa garantir que mais de um filosofo nao pegue o mesmo
+    sem_wait(&mutex);
     // chopstick simultaneamente
     //
     pegar(i, c1);
@@ -119,6 +123,7 @@ void * filosofo(void * id)
     //
     liberar(i, c1);
     liberar(i, c2);
+    sem_post(&mutex);
 
 }
 
@@ -146,4 +151,3 @@ int gera_rand(int limit)
     // 0 a (limit -1)
     return rand()%limit;
 }
-
