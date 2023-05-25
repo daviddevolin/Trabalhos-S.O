@@ -108,9 +108,9 @@ void * filosofo(void * id)
 
     //
     // TODO: precisa garantir que mais de um filosofo nao pegue o mesmo
-    sem_wait(&mutex);
     // chopstick simultaneamente
     //
+    sem_wait(&mutex);
     pegar(i, c1);
     pegar(i, c2);
     
