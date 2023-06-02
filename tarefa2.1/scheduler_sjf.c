@@ -22,19 +22,6 @@ struct proc * scheduler(struct proc * current)
 {
     struct proc * selected ; 
 
-    /*
-     *   Tratando o processo que está atualmente executando
-     */
-
-    // TODO: Neste ponto o escalonador tem a variavel 'current' apontando 
-    // TODO: para o processo que acabou de sair da execução, é necessário
-    // TODO: verificar o estado em que este processo está, e fazer o seu 
-    // TODO: devido tratamento: 
-    //          a) verificar o seu estado
-    //          b) adicioná-lo na fila adequada a seu estado
-    //          c) realizar a contabilização de acordo com sua nova fila
-
-    // Para tratar o caso do início do sistema, quando nao tem ninguem rodando
     if (current != NULL)
     {
         // Verificando o estado em que o processo executando está
@@ -87,11 +74,11 @@ struct proc * scheduler(struct proc * current)
     // Se a fila de aptos está vazia, nao há o que fazer
     if (isempty(ready))
     {
-        // printf("== sched FIFO: fila READY is empty\n");
+        printf("== sched SJF: fila READY is empty\n");
         return NULL;
     }
 
-    // Pegando o primeiro processo da fila de aptos para executar
+    // Pegando o menor processo da fila de aptos para executar
     selected = get_lower_process(ready);
     
     count_ready_out(selected);
@@ -109,16 +96,16 @@ struct proc * get_lower_process(struct queue * ready){
     int min_time = 99999;
 
     for (struct proc * p = ready->head; p != NULL;  p = p->next){
-
         if (p->remaining_time < min_time){
             min_time = p->remaining_time;
             p_lower_time = p;
         }
     }
+
     if (p_lower_time!= NULL){
         dequeue_bypid(ready, p_lower_time->pid);
     }
-    
+
     return p_lower_time;
 }
 
