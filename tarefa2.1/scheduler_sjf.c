@@ -105,18 +105,21 @@ struct proc * scheduler(struct proc * current)
 
 
 struct proc * get_lower_process(struct queue * ready){
-        struct proc * p_lower_time;
-        int min_time = 99999;
+    struct proc * p_lower_time;
+    int min_time = 99999;
 
-        for (struct proc * p = ready->head; p != NULL;  p = p->next){
+    for (struct proc * p = ready->head; p != NULL;  p = p->next){
 
-                if (p->remaining_time < min_time){
-                        min_time = p->remaining_time;
-                        p_lower_time = p;
-                        dequeue_bypid(ready, p->pid);
-                }
+        if (p->remaining_time < min_time){
+            min_time = p->remaining_time;
+            p_lower_time = p;
         }
-        return p_lower_time;
+    }
+    if (p_lower_time!= NULL){
+        dequeue_bypid(ready, p_lower_time->pid);
+    }
+    
+    return p_lower_time;
 }
 
 
