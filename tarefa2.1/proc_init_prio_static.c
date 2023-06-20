@@ -38,10 +38,14 @@ void proc_init()
 
         if (p->remaining_time<=time_20)
         {
+            // determinando fila do processo
+            p->queue = 1;
             // adicionando-o na fila de aptos1
             enqueue(ready, p);
         }else
         {
+            // determinando fila do processo
+            p->queue = 2;
             // adicionando-o na fila de aptos2
             enqueue(ready2, p);
         }
