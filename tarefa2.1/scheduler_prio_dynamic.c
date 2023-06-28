@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include <stdlib.h>
 #include "queue.h" // contem funções uteis para filas
 #include "proc.h"  // possui as funções dos processos
 #include "stats.h" // possui as funções de estatisticas 
@@ -15,6 +15,7 @@ extern struct queue * finished; // fila de finalizados
 
 // variavel global que indica o tempo maximo que um processo pode executar ao todo
 extern int MAX_TIME;
+struct proc * get_process(struct queue * ready, struct queue * ready2);
 
 struct proc * scheduler(struct proc * current)
 {
@@ -28,14 +29,8 @@ struct proc * scheduler(struct proc * current)
             // Caso esteja 'apto' é porque saiu por preempção
             case READY:
 
-                // testando a qual fila o processo merece
-                if (current->queue == 1)
-                {
-                    enqueue(ready, current);
-                }else
-                {
-                    enqueue(ready2, current);
-                }
+                // como o processo saiu por preempção então ele está vai para ready2
+                enqueue(ready2, current);
                 // Realizando as estatisticas para o processo que 
                 // entra na fila de aptos
                 count_ready_in(current);
@@ -79,7 +74,7 @@ struct proc * scheduler(struct proc * current)
         return NULL;
     }
 
-    // Pegando o menor processo da fila de aptos para executar
+    //selecionando o processo
     selected = get_process(ready, ready2);
     
     count_ready_out(selected);

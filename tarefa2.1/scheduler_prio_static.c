@@ -81,7 +81,7 @@ struct proc * scheduler(struct proc * current)
         return NULL;
     }
 
-    // Pegando o menor processo da fila de aptos para executar
+    // selecionando processo da fila de aptos para executar
     selected = get_process(ready, ready2);
     
     count_ready_out(selected);
